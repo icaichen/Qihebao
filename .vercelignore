@@ -1,0 +1,7 @@
+# Exclude backend service from Vercel Hobby deployment
+api/
+
+# Non-web assets
+scripts/
+docs/
+docker-compose.yml

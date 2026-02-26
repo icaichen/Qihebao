@@ -149,3 +149,13 @@ chmod +x scripts/dev.sh
 ## 许可证
 
 内部使用
+
+## Vercel 部署说明
+
+本仓库包含 `web`（前端）和 `api`（后端）两个目录。
+在 Vercel Hobby 计划下，为避免 Serverless Functions 数量超限：
+
+- Vercel 仅部署 `web` 前端静态站点
+- `api/` 通过 `.vercelignore` 排除，不在 Vercel 上创建函数
+
+如需部署后端，请使用独立服务（Render/Railway/Fly.io/自建）并在前端配置 API 地址。
