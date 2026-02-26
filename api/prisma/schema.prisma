@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  companies Company[]
+  reports   Report[]
+  cases     Case[]
+
+  @@map("users")
+}
+
+model Company {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  legalName   String?
+  taxId       String?
+  industry    String?
+  address     String?
+  website     String?
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  riskScore   RiskScore?
+  riskEvents  RiskEvent[]
+  reports     Report[]
+  cases       Case[]
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@map("companies")
+}
+
+model RiskScore {
+  id        String   @id @default(uuid())
+  score     Int      @default(0)
+  level     RiskLevel @default(LOW)
+  updatedAt DateTime @default(now())
+  companyId String   @unique
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  @@map("risk_scores")
+}
+
+model RiskEvent {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        RiskType
+  severity    Severity @default(MEDIUM)
+  occurredAt  DateTime @default(now())
+  resolved    Boolean  @default(false)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+
+  @@map("risk_events")
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  title     String
+  content   String?
+  type      ReportType
+  status    ReportStatus @default(DRAFT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("reports")
+}
+
+model Case {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      CaseStatus @default(OPEN)
+  priority    Priority   @default(MEDIUM)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@map("cases")
+}
+
+enum Role {
+  USER
+  ADMIN
+  COMPLIANCE_OFFICER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskType {
+  REGULATORY
+  FINANCIAL
+  OPERATIONAL
+  REPUTATIONAL
+  LEGAL
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportType {
+  COMPLIANCE_AUDIT
+  RISK_ASSESSMENT
+  DUE_DILIGENCE
+  ANNUAL_REVIEW
+}
+
+enum ReportStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  ARCHIVED
+}
+
+enum CaseStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
